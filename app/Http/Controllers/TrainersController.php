@@ -13,6 +13,7 @@ class TrainersController extends Controller
   */
   public function index()
   {
+
     $trainers = Trainer::all();
     return view('trainers.index', compact('trainers'));
   }
@@ -37,21 +38,25 @@ class TrainersController extends Controller
   public function store(Request $request)
   {
 
+
+    $request->validate([
+      'avatar'=>'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+      'name'=>'required|max:15'
+    ]);
     if( $request->hasFile('avatar')){
-      if(!$this->validate($request,['avatar'=>'image|mimes:jpeg,png,jpg,gif,svg|max:2048'])){
-        return response()->json('La imagen debe pesar por máximo 2 MB y ser de formato jpeg, png, jpg, gif o svg.', 400);
-      }
+
       $imageName = time().'.'.$request->avatar->getClientOriginalExtension();
       $request->avatar->move(public_path('images'), $imageName);
       $trainer = new Trainer();
       $trainer->name=$request->name;
       $trainer->avatar = $imageName;
+      $trainer->slug=str_replace(" ","-",strtolower($request->name));
       $trainer->save();
 
       return 'Saved!' ;
 
-
     }
+
 
   }
 
@@ -63,6 +68,7 @@ class TrainersController extends Controller
   */
   public function show(Trainer $trainer)
   {
+
     return view('trainers.show', compact('trainer'));
   }
 
@@ -72,9 +78,10 @@ class TrainersController extends Controller
   * @param  int  $id
   * @return \Illuminate\Http\Response
   */
-  public function edit($id)
+  public function edit(Trainer $trainer)
   {
-    //
+
+    return view('trainers.edit',compact('trainer'));
   }
 
   /**
@@ -84,9 +91,20 @@ class TrainersController extends Controller
   * @param  int  $id
   * @return \Illuminate\Http\Response
   */
-  public function update(Request $request, $id)
+  public function update(Request $request,Trainer $trainer)
   {
-    //
+    $trainer->fill($request->except('avatar'));
+    if( $request->hasFile('avatar')){
+      if(!$this->validate($request,['avatar'=>'image|mimes:jpeg,png,jpg,gif,svg|max:2048'])){
+        return response()->json('La imagen debe pesar por máximo 2 MB y ser de formato jpeg, png, jpg, gif o svg.', 400);
+      }
+      $imageName = time().'.'.$request->avatar->getClientOriginalExtension();
+      $request->avatar->move(public_path('images'), $imageName);
+      $trainer->avatar = $imageName;
+
+    }
+    $trainer->save();
+    return 'Updated!';
   }
 
   /**
