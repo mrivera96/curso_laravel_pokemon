@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Trainer;
+use App\Http\Requests\StoreTrainerRequest;
 class TrainersController extends Controller
 {
   /**
@@ -11,11 +12,15 @@ class TrainersController extends Controller
   *
   * @return \Illuminate\Http\Response
   */
-  public function index()
+  public function index(Request $request)
   {
+    if($request->user()){
+      $request->user()->authorizeRoles('user');
+      $trainers = Trainer::all();
+      return view('trainers.index', compact('trainers'));
+    }
+    return '<div class="alert alert-danger" role="alert"><p>Necesitas estar logueado para acceder aquí.</p></div>';
 
-    $trainers = Trainer::all();
-    return view('trainers.index', compact('trainers'));
   }
 
   /**
@@ -35,13 +40,12 @@ class TrainersController extends Controller
   * @param  \Illuminate\Http\Request  $request
   * @return \Illuminate\Http\Response
   */
-  public function store(Request $request)
+  public function store(StoreTrainerRequest $request)
   {
 
 
     $request->validate([
-      'avatar'=>'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-      'name'=>'required|max:15'
+
     ]);
     if( $request->hasFile('avatar')){
 
@@ -53,7 +57,7 @@ class TrainersController extends Controller
       $trainer->slug=str_replace(" ","-",strtolower($request->name));
       $trainer->save();
 
-      return 'Saved!' ;
+      return redirect()->route('trainers.index');
 
     }
 
@@ -104,7 +108,7 @@ class TrainersController extends Controller
 
     }
     $trainer->save();
-    return 'Updated!';
+    return redirect()->route('trainers.show', [$trainer])->with('status','Entrenador actualizado correctamente');
   }
 
   /**
@@ -113,8 +117,11 @@ class TrainersController extends Controller
   * @param  int  $id
   * @return \Illuminate\Http\Response
   */
-  public function destroy($id)
+  public function destroy(Trainer $trainer)
   {
-    //
+    $file_path = public_path('images').'/'.$trainer->avatar;
+    \File::delete($file_path);
+    $trainer->delete();
+    return redirect()->route('trainers.index');
   }
 }

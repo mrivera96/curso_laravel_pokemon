@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddAvatarToTrainerTable extends Migration
+class CreateRoleUserTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddAvatarToTrainerTable extends Migration
      */
     public function up()
     {
-        Schema::table('trainers', function (Blueprint $table) {
-            $table->string('avatar');
+        Schema::create('role_user', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->integer('user_id')->unsigned();
+            $table->integer('role_id')->unsigned();
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ class AddAvatarToTrainerTable extends Migration
      */
     public function down()
     {
-        Schema::table('trainers', function (Blueprint $table) {
-          $table->dropColumn('avatar');
-        });
+        Schema::dropIfExists('role_user');
     }
 }

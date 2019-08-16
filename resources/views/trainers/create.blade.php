@@ -1,21 +1,9 @@
-@extends('templates/layout')
+@extends('layouts.app')
 
 @section('title','Create Trainer')
 
 @section('content')
-  @if ($errors->any())
-
-    <div class="alert alert-danger">
-      <ul>
-        @foreach ($errors->all() as $error)
-          <li>{{$error}}</li>
-        @endforeach
-      </ul>
-
-    </div>
-
-
-  @endif
+@include('common.errors')
   <form class="form-group" enctype="multipart/form-data" method="POST" action="{{route('trainers.store')}}" >
     @csrf
     <div class="form-group">

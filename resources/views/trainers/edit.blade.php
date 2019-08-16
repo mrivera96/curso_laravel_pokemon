@@ -1,4 +1,4 @@
-@extends('templates/layout')
+@extends('layouts.app')
 @section('title','Trainer Edit')
 @section('content')
     <form class="form-group" enctype="multipart/form-data" method="POST" action="{{route('trainers.update',$trainer->slug)}}" >
